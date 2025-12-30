@@ -1,0 +1,94 @@
+{
+    "name": "Non-Disclosure Agreement (NDA)",
+    "slug": "nda",
+    "description": "A comprehensive Non-Disclosure Agreement for protecting confidential information in Indian legal context.",
+    "category": "agreements",
+    "applicable_laws": [
+      "Indian Contract Act, 1872",
+      "Information Technology Act, 2000"
+    ],
+    "form_schema": {
+      "fields": [
+        {
+          "name": "agreement_date",
+          "label": "Agreement Date",
+          "type": "date",
+          "required": true,
+          "help_text": "The date when this agreement is signed"
+        },
+        {
+          "name": "party_a_name",
+          "label": "Disclosing Party Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "Enter full legal name or company name",
+          "help_text": "The party who will be disclosing confidential information"
+        },
+        {
+          "name": "party_a_address",
+          "label": "Disclosing Party Address",
+          "type": "textarea",
+          "required": true,
+          "placeholder": "Complete registered address"
+        },
+        {
+          "name": "party_b_name",
+          "label": "Receiving Party Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "Enter full legal name or company name",
+          "help_text": "The party who will be receiving confidential information"
+        },
+        {
+          "name": "party_b_address",
+          "label": "Receiving Party Address",
+          "type": "textarea",
+          "required": true,
+          "placeholder": "Complete registered address"
+        },
+        {
+          "name": "purpose",
+          "label": "Purpose of Disclosure",
+          "type": "textarea",
+          "required": true,
+          "placeholder": "e.g., Evaluation of potential business collaboration",
+          "help_text": "Brief description of why information is being shared"
+        },
+        {
+          "name": "duration_years",
+          "label": "Agreement Duration (Years)",
+          "type": "select",
+          "required": true,
+          "options": ["1", "2", "3", "5"],
+          "default_value": "3"
+        },
+        {
+          "name": "survival_years",
+          "label": "Confidentiality Survival Period (Years)",
+          "type": "select",
+          "required": true,
+          "options": ["1", "2", "3", "5"],
+          "default_value": "2",
+          "help_text": "How long confidentiality obligations survive after agreement ends"
+        },
+        {
+          "name": "jurisdiction",
+          "label": "Governing Jurisdiction",
+          "type": "select",
+          "required": true,
+          "options": [
+            "Delhi",
+            "Mumbai",
+            "Bangalore",
+            "Chennai",
+            "Kolkata",
+            "Hyderabad",
+            "Pune",
+            "Ahmedabad"
+          ],
+          "help_text": "Courts of which city will have jurisdiction"
+        }
+      ]
+    },
+    "template_body": "NON-DISCLOSURE AGREEMENT\n\nThis Non-Disclosure Agreement (\"Agreement\") is entered into as of {{agreement_date}}, by and between:\n\n{{party_a_name}}, having its registered office at {{party_a_address}} (hereinafter referred to as the \"Disclosing Party\"),\n\nAND\n\n{{party_b_name}}, having its registered office at {{party_b_address}} (hereinafter referred to as the \"Receiving Party\").\n\nWHEREAS, the Disclosing Party possesses certain confidential and proprietary information relating to its business, technology, and operations; and\n\nWHEREAS, the Receiving Party desires to receive such confidential information for the purpose of {{purpose}};\n\nNOW, THEREFORE, in consideration of the mutual covenants and agreements herein contained, and for other good and valuable consideration, the receipt and sufficiency of which are hereby acknowledged, the parties agree as follows:\n\n1. DEFINITION OF CONFIDENTIAL INFORMATION\n\n\"Confidential Information\" shall mean any and all information disclosed by the Disclosing Party to the Receiving Party, whether orally, in writing, electronically, or by any other means, including but not limited to:\n\na) Trade secrets, inventions, patents, copyrights, trademarks, and other intellectual property;\nb) Business plans, strategies, financial information, and projections;\nc) Customer lists, supplier information, and marketing data;\nd) Technical data, software, algorithms, designs, and source code;\ne) Any other information marked as \"Confidential\" or that would reasonably be understood to be confidential given the nature of the information and circumstances of disclosure.\n\n2. OBLIGATIONS OF THE RECEIVING PARTY\n\nThe Receiving Party agrees to:\n\na) Hold the Confidential Information in strict confidence and protect it with the same degree of care it uses to protect its own confidential information, but in no event less than reasonable care;\nb) Not disclose the Confidential Information to any third party without the prior written consent of the Disclosing Party;\nc) Use the Confidential Information solely for the Purpose stated herein and not for any other purpose;\nd) Limit access to the Confidential Information to its employees, agents, and representatives who have a legitimate need to know and who have been informed of the confidential nature of such information;\ne) Not copy, reproduce, or create derivative works based on the Confidential Information without prior written consent;\nf) Notify the Disclosing Party immediately upon discovery of any unauthorized use or disclosure of the Confidential Information.\n\n3. EXCEPTIONS\n\nThe obligations set forth in this Agreement shall not apply to information that:\n\na) Was known to the Receiving Party prior to disclosure by the Disclosing Party;\nb) Is or becomes publicly available through no breach of this Agreement by the Receiving Party;\nc) Is rightfully received by the Receiving Party from a third party without breach of any confidentiality obligation;\nd) Is independently developed by the Receiving Party without use of or reference to the Confidential Information;\ne) Is required to be disclosed by law, court order, or governmental authority, provided that the Receiving Party gives the Disclosing Party prompt written notice of such requirement.\n\n4. TERM AND TERMINATION\n\nThis Agreement shall commence on the date first written above and shall continue in effect for a period of {{duration_years}} ({{duration_years}}) years from such date, unless earlier terminated by either party upon thirty (30) days' written notice to the other party.\n\nThe obligations of confidentiality set forth in this Agreement shall survive the termination of this Agreement for an additional period of {{survival_years}} ({{survival_years}}) years.\n\n5. RETURN OF CONFIDENTIAL INFORMATION\n\nUpon termination of this Agreement or upon request by the Disclosing Party at any time, the Receiving Party shall promptly:\n\na) Return to the Disclosing Party all Confidential Information, including all copies, notes, and derivatives thereof; or\nb) At the Disclosing Party's option, certify in writing the destruction of all such materials.\n\n6. NO LICENSE OR WARRANTY\n\nNothing in this Agreement shall be construed as granting any rights, by license or otherwise, to the Receiving Party in or to the Confidential Information, except as expressly set forth herein.\n\nThe Disclosing Party makes no representation or warranty, express or implied, as to the accuracy or completeness of the Confidential Information. The Disclosing Party shall not be liable for any errors or omissions in the Confidential Information or for any actions taken or not taken in reliance thereon.\n\n7. REMEDIES\n\nThe Receiving Party acknowledges that any breach of this Agreement may cause irreparable harm to the Disclosing Party for which monetary damages would be an inadequate remedy. Accordingly, the Disclosing Party shall be entitled to seek equitable relief, including injunction and specific performance, in addition to all other remedies available at law or in equity.\n\n8. GOVERNING LAW AND JURISDICTION\n\nThis Agreement shall be governed by and construed in accordance with the laws of India, without regard to its conflict of law provisions.\n\nAny disputes arising out of or in connection with this Agreement shall be subject to the exclusive jurisdiction of the courts in {{jurisdiction}}, India.\n\n9. ENTIRE AGREEMENT\n\nThis Agreement constitutes the entire agreement between the parties with respect to the subject matter hereof and supersedes all prior and contemporaneous agreements, understandings, negotiations, and discussions, whether oral or written, between the parties.\n\nThis Agreement may not be amended or modified except by a written instrument signed by both parties.\n\n10. SEVERABILITY\n\nIf any provision of this Agreement is held to be invalid, illegal, or unenforceable, the remaining provisions shall continue in full force and effect.\n\n11. WAIVER\n\nNo waiver of any provision of this Agreement shall be deemed or shall constitute a waiver of any other provision, nor shall any waiver constitute a continuing waiver.\n\n12. COUNTERPARTS\n\nThis Agreement may be executed in counterparts, each of which shall be deemed an original and all of which together shall constitute one and the same instrument.\n\nIN WITNESS WHEREOF, the parties have executed this Agreement as of the date first written above.\n\nFOR {{party_a_name}}:\n\nSignature: _______________________\nName:\nDesignation:\nDate:\n\nFOR {{party_b_name}}:\n\nSignature: _______________________\nName:\nDesignation:\nDate:"
+  }

@@ -1,0 +1,90 @@
+# backend/.gitignore
+
+# ============================================
+# PYTHON
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ============================================
+# VIRTUAL ENVIRONMENT
+# ============================================
+venv/
+ENV/
+env/
+.venv/
+
+# ============================================
+# ENVIRONMENT VARIABLES (IMPORTANT!)
+# ============================================
+.env
+.env.local
+.env.production
+
+# ============================================
+# IDE
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ============================================
+# DATA & UPLOADS
+# ============================================
+data/uploads/*
+data/generated/*
+data/chroma_db/*
+!data/uploads/.gitkeep
+!data/generated/.gitkeep
+!data/chroma_db/.gitkeep
+
+# Keep knowledge_base folder but not its contents (we'll add sample data)
+data/knowledge_base/*
+!data/knowledge_base/.gitkeep
+!data/knowledge_base/README.md
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# ============================================
+# LOGS
+# ============================================
+*.log
+logs/
+
+# ============================================
+# TESTING
+# ============================================
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# ============================================
+# MISC
+# ============================================
+.DS_Store
+Thumbs.db
+*.bak

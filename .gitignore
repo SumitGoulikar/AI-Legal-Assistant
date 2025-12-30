@@ -1,0 +1,30 @@
+# --- Dependencies ---
+node_modules/
+venv/
+__pycache__/
+*.py[cod]
+dist/
+build/
+
+# --- Environment Variables (CRITICAL) ---
+.env
+.env.local
+.env.*
+
+# --- Database & Storage ---
+*.db
+*.sqlite
+*.sqlite3
+backend/data/chroma_db/
+backend/data/uploads/
+backend/data/generated/
+backend/data/knowledge_base/
+
+# --- Logs & OS Files ---
+*.log
+.DS_Store
+Thumbs.db
+
+# --- IDE Settings ---
+.vscode/
+.idea/

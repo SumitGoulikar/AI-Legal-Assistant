@@ -1,0 +1,4 @@
+type nul > data\uploads\.gitkeep
+type nul > data\generated\.gitkeep
+type nul > data\chroma_db\.gitkeep
+type nul > data\knowledge_base\.gitkeep
