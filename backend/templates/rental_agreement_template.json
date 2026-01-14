@@ -1,0 +1,55 @@
+{
+  "name": "Residential Rental Agreement",
+  "slug": "rental_agreement",
+  "category": "agreements",
+  "description": "Standard 11-month rental agreement for residential property.",
+  "applicable_laws": [
+    "Rent Control Act",
+    "Transfer of Property Act, 1882"
+  ],
+  "form_schema": {
+    "fields": [
+      {
+        "name": "landlord_name",
+        "label": "Landlord Name",
+        "type": "text"
+      },
+      {
+        "name": "tenant_name",
+        "label": "Tenant Name",
+        "type": "text"
+      },
+      {
+        "name": "property_address",
+        "label": "Property Address",
+        "type": "textarea"
+      },
+      {
+        "name": "rent_amount",
+        "label": "Monthly Rent (INR)",
+        "type": "number"
+      },
+      {
+        "name": "deposit_amount",
+        "label": "Security Deposit (INR)",
+        "type": "number"
+      },
+      {
+        "name": "start_date",
+        "label": "Lease Start Date",
+        "type": "date"
+      },
+      {
+        "name": "notice_period",
+        "label": "Notice Period (Months)",
+        "type": "select",
+        "options": [
+          "1",
+          "2",
+          "3"
+        ]
+      }
+    ]
+  },
+  "template_body": "RENTAL AGREEMENT\n\nThis Rental Agreement is made on this {{start_date}} by and between:\n\n{{landlord_name}} (hereinafter referred to as the \"LESSOR\"),\nAND\n{{tenant_name}} (hereinafter referred to as the \"LESSEE\").\n\n1. PROPERTY\nThe Lessor hereby lets out the property situated at: {{property_address}}.\n\n2. RENT AND DEPOSIT\nThe Lessee shall pay a monthly rent of INR {{rent_amount}} on or before the 5th of every month.\nThe Lessee has paid a Security Deposit of INR {{deposit_amount}}, which is refundable at the time of vacating.\n\n3. TERM\nThis lease is valid for a period of 11 months starting from {{start_date}}.\n\n4. NOTICE PERIOD\nEither party may terminate this agreement by giving {{notice_period}} month(s) written notice.\n\nIN WITNESS WHEREOF, the parties have signed this agreement.\n\nLessor: _________________      Lessee: _________________"
+}

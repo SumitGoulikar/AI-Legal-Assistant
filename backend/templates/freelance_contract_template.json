@@ -1,0 +1,39 @@
+{
+  "name": "Freelance Service Agreement",
+  "slug": "freelance_contract",
+  "category": "contracts",
+  "description": "Contract for hiring a freelancer or consultant.",
+  "applicable_laws": [
+    "Indian Contract Act, 1872"
+  ],
+  "form_schema": {
+    "fields": [
+      {
+        "name": "client_name",
+        "label": "Client Name",
+        "type": "text"
+      },
+      {
+        "name": "freelancer_name",
+        "label": "Freelancer Name",
+        "type": "text"
+      },
+      {
+        "name": "project_name",
+        "label": "Project Name",
+        "type": "text"
+      },
+      {
+        "name": "total_fee",
+        "label": "Total Fee (INR)",
+        "type": "number"
+      },
+      {
+        "name": "deadline",
+        "label": "Completion Deadline",
+        "type": "date"
+      }
+    ]
+  },
+  "template_body": "SERVICE AGREEMENT\n\nThis Agreement is made between {{client_name}} (\"Client\") and {{freelancer_name}} (\"Contractor\").\n\n1. SCOPE OF WORK\nThe Contractor agrees to perform services for the project: {{project_name}}.\n\n2. PAYMENT\nThe Client agrees to pay a total fee of INR {{total_fee}} upon completion.\n\n3. DEADLINE\nThe services must be completed by {{deadline}}.\n\n4. INTELLECTUAL PROPERTY\nUpon full payment, the Client shall own all rights to the work produced.\n\nSigned:\n\nClient: _________________      Contractor: _________________"
+}

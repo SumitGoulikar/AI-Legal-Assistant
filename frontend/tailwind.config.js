@@ -4,6 +4,7 @@ export default {
       "./index.html",
       "./src/**/*.{js,ts,jsx,tsx}",
     ],
+    darkMode: 'class',
     theme: {
       extend: {
         colors: {
@@ -19,8 +20,18 @@ export default {
             800: '#1e40af',
             900: '#1e3a8a',
           },
+          dark: {
+            
+              bg: '#0f172a',       // Main background (Deep Blue/Slate)
+              card: '#1e293b',     // Card background (Lighter Slate)
+              hover: '#334155',    // Hover state
+              border: '#334155',   // Borders
+              text: '#f8fafc',     // Primary Text (Almost White)
+              muted: '#94a3b8',    // Secondary Text (Grayish)
+          
         },
       },
     },
     plugins: [],
   }
+}

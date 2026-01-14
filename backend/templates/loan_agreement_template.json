@@ -1,0 +1,39 @@
+{
+  "name": "Loan Agreement",
+  "slug": "loan_agreement",
+  "category": "contracts",
+  "description": "Personal or business loan agreement.",
+  "applicable_laws": [
+    "Indian Contract Act, 1872"
+  ],
+  "form_schema": {
+    "fields": [
+      {
+        "name": "lender_name",
+        "label": "Lender Name",
+        "type": "text"
+      },
+      {
+        "name": "borrower_name",
+        "label": "Borrower Name",
+        "type": "text"
+      },
+      {
+        "name": "amount",
+        "label": "Loan Amount",
+        "type": "number"
+      },
+      {
+        "name": "interest_rate",
+        "label": "Interest Rate (%)",
+        "type": "number"
+      },
+      {
+        "name": "repayment_date",
+        "label": "Repayment Date",
+        "type": "date"
+      }
+    ]
+  },
+  "template_body": "LOAN AGREEMENT\n\nThis Agreement is made between {{lender_name}} (\"Lender\") and {{borrower_name}} (\"Borrower\").\n\n1. LOAN AMOUNT\nThe Lender agrees to lend the Borrower the sum of INR {{amount}}.\n\n2. INTEREST\nThe loan shall bear an interest rate of {{interest_rate}}% per annum.\n\n3. REPAYMENT\nThe Borrower agrees to repay the full amount along with interest by {{repayment_date}}.\n\nSigned:\n\nLender: _________________      Borrower: _________________"
+}

@@ -1,0 +1,34 @@
+{
+  "name": "Internship Agreement",
+  "slug": "internship_agreement",
+  "category": "agreements",
+  "description": "Agreement for hiring interns.",
+  "applicable_laws": [
+    "Indian Contract Act, 1872"
+  ],
+  "form_schema": {
+    "fields": [
+      {
+        "name": "company",
+        "label": "Company",
+        "type": "text"
+      },
+      {
+        "name": "intern",
+        "label": "Intern Name",
+        "type": "text"
+      },
+      {
+        "name": "duration",
+        "label": "Duration (Months)",
+        "type": "number"
+      },
+      {
+        "name": "stipend",
+        "label": "Stipend (INR)",
+        "type": "number"
+      }
+    ]
+  },
+  "template_body": "INTERNSHIP AGREEMENT\n\nBetween {{company}} and {{intern}}.\n\n1. ROLE\nYou are hired as an Intern for a period of {{duration}} months.\n\n2. STIPEND\nYou will receive a monthly stipend of INR {{stipend}}.\n\n3. CONFIDENTIALITY\nYou agree to keep all company information confidential.\n\nFor {{company}}: _________________"
+}

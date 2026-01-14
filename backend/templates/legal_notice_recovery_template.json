@@ -1,0 +1,41 @@
+{
+  "name": "Legal Notice (Money Recovery)",
+  "slug": "legal_notice_recovery",
+  "category": "notices",
+  "description": "Formal notice to recover dues or outstanding payments.",
+  "applicable_laws": [
+    "Civil Procedure Code",
+    "Negotiable Instruments Act"
+  ],
+  "form_schema": {
+    "fields": [
+      {
+        "name": "sender_name",
+        "label": "Sender Name",
+        "type": "text"
+      },
+      {
+        "name": "recipient_name",
+        "label": "Recipient Name",
+        "type": "text"
+      },
+      {
+        "name": "amount_due",
+        "label": "Amount Due (INR)",
+        "type": "number"
+      },
+      {
+        "name": "reason",
+        "label": "Reason for Due",
+        "type": "textarea"
+      },
+      {
+        "name": "days_to_pay",
+        "label": "Days to Pay",
+        "type": "number",
+        "default_value": "15"
+      }
+    ]
+  },
+  "template_body": "LEGAL NOTICE\n\nFrom:\nAdvocate for {{sender_name}}\n\nTo:\n{{recipient_name}}\n\nSubject: NOTICE FOR RECOVERY OF DUES OF INR {{amount_due}}\n\nSir/Madam,\n\nUnder instructions from my client {{sender_name}}, I hereby state:\n\n1. That you owe my client a sum of INR {{amount_due}} regarding {{reason}}.\n2. That despite repeated reminders, you have failed to pay the said amount.\n\nI hereby call upon you to pay the sum of INR {{amount_due}} within {{days_to_pay}} days of receipt of this notice, failing which my client shall be constrained to initiate legal proceedings against you.\n\nYours faithfully,\n\n_____________________\nAdvocate Signature"
+}

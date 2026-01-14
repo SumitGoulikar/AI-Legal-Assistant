@@ -1,0 +1,45 @@
+{
+  "name": "Employment Offer Letter",
+  "slug": "employment_agreement",
+  "category": "contracts",
+  "description": "Formal job offer letter outlining salary, role, and terms.",
+  "applicable_laws": [
+    "Indian Contract Act, 1872",
+    "Industrial Disputes Act"
+  ],
+  "form_schema": {
+    "fields": [
+      {
+        "name": "company_name",
+        "label": "Company Name",
+        "type": "text"
+      },
+      {
+        "name": "employee_name",
+        "label": "Employee Name",
+        "type": "text"
+      },
+      {
+        "name": "designation",
+        "label": "Job Title",
+        "type": "text"
+      },
+      {
+        "name": "salary",
+        "label": "Annual CTC (INR)",
+        "type": "number"
+      },
+      {
+        "name": "joining_date",
+        "label": "Joining Date",
+        "type": "date"
+      },
+      {
+        "name": "probation_months",
+        "label": "Probation Period (Months)",
+        "type": "number"
+      }
+    ]
+  },
+  "template_body": "OFFER OF EMPLOYMENT\n\nDate: {{joining_date}}\n\nTo,\n{{employee_name}}\n\nDear {{employee_name}},\n\nWe are pleased to offer you the position of {{designation}} at {{company_name}}.\n\n1. COMPENSATION\nYour Annual Cost to Company (CTC) will be INR {{salary}}. Detailed breakup will be provided upon joining.\n\n2. PROBATION\nYou will be on a probation period of {{probation_months}} months from the date of joining.\n\n3. JOINING\nYou are requested to join us on or before {{joining_date}}.\n\nWe look forward to having you on our team.\n\nFor {{company_name}},\n\n_____________________\nAuthorized Signatory"
+}

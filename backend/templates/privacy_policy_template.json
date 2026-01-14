@@ -1,0 +1,24 @@
+{
+  "name": "Website Privacy Policy",
+  "slug": "privacy_policy",
+  "category": "notices",
+  "description": "Standard privacy policy for websites.",
+  "applicable_laws": [
+    "IT Act, 2000 (SPDI Rules)"
+  ],
+  "form_schema": {
+    "fields": [
+      {
+        "name": "website_name",
+        "label": "Website Name",
+        "type": "text"
+      },
+      {
+        "name": "contact_email",
+        "label": "Contact Email",
+        "type": "email"
+      }
+    ]
+  },
+  "template_body": "PRIVACY POLICY for {{website_name}}\n\n1. COLLECTION OF INFORMATION\nWe collect information you provide directly to us when using {{website_name}}.\n\n2. USE OF INFORMATION\nWe use information to provide, maintain, and improve our services.\n\n3. CONTACT\nIf you have questions about this Privacy Policy, please contact us at {{contact_email}}.\n\nEffective Date: [Current Date]"
+}

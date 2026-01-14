@@ -2,24 +2,18 @@
 """
 Document API Routes
 ===================
-Endpoints for document management.
-
-Endpoints:
-- POST /documents/upload - Upload a document
-- GET /documents - List user's documents
-- GET /documents/{id} - Get document details
-- GET /documents/{id}/content - Get document text content
-- GET /documents/{id}/download - Download original file
-- DELETE /documents/{id} - Delete a document
-- GET /documents/stats - Get document statistics
+Endpoints for document management and analysis.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Query
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Optional
+from typing import Optional, List, Dict, Any
 import os
-import io
+from pydantic import BaseModel
+from app.utils.file_processor import extract_text
+import shutil
+import tempfile
 
 from app.database import get_db
 from app.schemas.document import (
@@ -31,15 +25,11 @@ from app.schemas.document import (
 )
 from app.schemas.common import MessageResponse, ErrorResponse
 from app.services.document_service import DocumentService
+from app.services.llm_service import get_llm_service
 from app.api.deps import ActiveUser, DBSession
 from app.core.exceptions import NotFoundError, ValidationError, FileProcessingError
-from app.config import settings
 from app.utils.file_processor import format_file_size
-from app.services.vector_store_service import get_vector_store_service
 
-# ============================================
-# ROUTER SETUP
-# ============================================
 router = APIRouter(
     prefix="/documents",
     tags=["Documents"],
@@ -49,10 +39,12 @@ router = APIRouter(
     },
 )
 
+# --- REQUEST MODELS ---
+class AnalyzeRequest(BaseModel):
+    text: str
+    analysis_type: str = "summary"
 
-# ============================================
-# HELPER FUNCTION
-# ============================================
+# --- HELPER FUNCTION ---
 def document_to_response(doc) -> DocumentResponse:
     """Convert document model to response schema."""
     return DocumentResponse(
@@ -72,7 +64,6 @@ def document_to_response(doc) -> DocumentResponse:
         file_size_formatted=format_file_size(doc.file_size),
     )
 
-
 # ============================================
 # UPLOAD DOCUMENT
 # ============================================
@@ -81,44 +72,20 @@ def document_to_response(doc) -> DocumentResponse:
     response_model=DocumentUploadResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Upload a document",
-    response_description="Document uploaded successfully",
 )
 async def upload_document(
     current_user: ActiveUser,
     db: DBSession,
     file: UploadFile = File(..., description="Document file (PDF, DOCX, or TXT)"),
 ):
-    """
-    Upload a legal document for analysis.
-    
-    **Supported formats:** PDF, DOCX, TXT
-    
-    **Max file size:** 10 MB
-    
-    The document will be:
-    1. Saved to storage
-    2. Text extracted
-    3. Split into chunks for AI analysis
-    
-    Processing happens immediately. Check the status field to confirm completion.
-    """
-    # Validate file
+    """Upload a legal document for analysis."""
     if not file.filename:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No filename provided"
-        )
+        raise HTTPException(status_code=400, detail="No filename provided")
     
-    # Read file content
     content = await file.read()
-    
     if len(content) == 0:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Empty file"
-        )
+        raise HTTPException(status_code=400, detail="Empty file")
     
-    # Create document service and upload
     doc_service = DocumentService(db)
     
     try:
@@ -134,18 +101,10 @@ async def upload_document(
             message=f"Document uploaded successfully. Status: {document.status}",
             document=document_to_response(document),
         )
-        
     except ValidationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e.message)
-        )
+        raise HTTPException(status_code=400, detail=str(e))
     except FileProcessingError as e:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=str(e.message)
-        )
-
+        raise HTTPException(status_code=422, detail=str(e))
 
 # ============================================
 # LIST DOCUMENTS
@@ -154,30 +113,16 @@ async def upload_document(
     "",
     response_model=DocumentListResponse,
     summary="List documents",
-    response_description="Paginated list of user's documents",
 )
 async def list_documents(
     current_user: ActiveUser,
     db: DBSession,
-    page: int = Query(1, ge=1, description="Page number"),
-    page_size: int = Query(10, ge=1, le=100, description="Items per page"),
-    status_filter: Optional[str] = Query(
-        None,
-        description="Filter by status (pending, processing, ready, failed)"
-    ),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    status_filter: Optional[str] = Query(None),
 ):
-    """
-    Get a paginated list of your uploaded documents.
-    
-    **Pagination:**
-    - `page`: Page number (starts at 1)
-    - `page_size`: Items per page (max 100)
-    
-    **Filtering:**
-    - `status`: Filter by processing status
-    """
+    """Get a paginated list of documents."""
     doc_service = DocumentService(db)
-    
     documents, total = await doc_service.get_user_documents(
         user_id=current_user.id,
         page=page,
@@ -196,50 +141,31 @@ async def list_documents(
         total_pages=total_pages,
     )
 
-
 # ============================================
 # GET DOCUMENT DETAILS
 # ============================================
-@router.get(
-    "/{document_id}",
-    response_model=DocumentDetailResponse,
-    summary="Get document details",
-    response_description="Document details with chunks preview",
-)
+@router.get("/{document_id}", response_model=DocumentDetailResponse)
 async def get_document(
     document_id: str,
     current_user: ActiveUser,
     db: DBSession,
 ):
-    """
-    Get detailed information about a specific document.
-    
-    Includes a preview of the first few text chunks.
-    """
+    """Get detailed information about a document."""
     doc_service = DocumentService(db)
-    
-    document = await doc_service.get_document_by_id(
-        document_id=document_id,
-        user_id=current_user.id
-    )
+    document = await doc_service.get_document_by_id(document_id, current_user.id)
     
     if not document:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Document not found"
-        )
+        raise HTTPException(status_code=404, detail="Document not found")
     
-    # Get first few chunks for preview
     chunks_preview = None
     if document.status == "ready":
         chunks = await doc_service.get_document_chunks(document_id, limit=3)
         chunks_preview = [
             {
                 "chunk_index": c.chunk_index,
-                "content_preview": c.content[:200] + "..." if len(c.content) > 200 else c.content,
+                "content_preview": c.content[:200] + "...",
                 "page": c.start_page,
-            }
-            for c in chunks
+            } for c in chunks
         ]
     
     return DocumentDetailResponse(
@@ -248,314 +174,97 @@ async def get_document(
         chunks_preview=chunks_preview,
     )
 
-
-# ============================================
-# GET DOCUMENT CONTENT
-# ============================================
-@router.get(
-    "/{document_id}/content",
-    summary="Get document text content",
-    response_description="Full text content of the document",
-)
-async def get_document_content(
-    document_id: str,
-    current_user: ActiveUser,
-    db: DBSession,
-):
-    """
-    Get the full extracted text content of a document.
-    
-    Only available for documents with status 'ready'.
-    """
-    doc_service = DocumentService(db)
-    
-    document = await doc_service.get_document_by_id(
-        document_id=document_id,
-        user_id=current_user.id
-    )
-    
-    if not document:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Document not found"
-        )
-    
-    if document.status != "ready":
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Document is not ready. Current status: {document.status}"
-        )
-    
-    # Get full text from chunks
-    text = await doc_service.get_document_text(document_id)
-    
-    return {
-        "success": True,
-        "document_id": document_id,
-        "original_name": document.original_name,
-        "content": text,
-        "word_count": document.word_count,
-        "chunk_count": document.chunk_count,
-    }
-
-
-# ============================================
-# GET DOCUMENT CHUNKS
-# ============================================
-@router.get(
-    "/{document_id}/chunks",
-    summary="Get document chunks",
-    response_description="List of document chunks",
-)
-async def get_document_chunks(
-    document_id: str,
-    current_user: ActiveUser,
-    db: DBSession,
-    page: int = Query(1, ge=1, description="Page number"),
-    page_size: int = Query(20, ge=1, le=100, description="Items per page"),
-):
-    """
-    Get the text chunks of a document.
-    
-    Chunks are the segments used for AI analysis.
-    """
-    doc_service = DocumentService(db)
-    
-    document = await doc_service.get_document_by_id(
-        document_id=document_id,
-        user_id=current_user.id
-    )
-    
-    if not document:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Document not found"
-        )
-    
-    if document.status != "ready":
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Document is not ready. Current status: {document.status}"
-        )
-    
-    # Get chunks with pagination
-    all_chunks = await doc_service.get_document_chunks(document_id)
-    
-    # Manual pagination (for simplicity)
-    start_idx = (page - 1) * page_size
-    end_idx = start_idx + page_size
-    paginated_chunks = all_chunks[start_idx:end_idx]
-    
-    total = len(all_chunks)
-    total_pages = (total + page_size - 1) // page_size if total > 0 else 0
-    
-    return {
-        "success": True,
-        "document_id": document_id,
-        "chunks": [
-            DocumentChunkResponse.model_validate(chunk)
-            for chunk in paginated_chunks
-        ],
-        "total": total,
-        "page": page,
-        "page_size": page_size,
-        "total_pages": total_pages,
-    }
-
-
 # ============================================
 # DOWNLOAD DOCUMENT
 # ============================================
-@router.get(
-    "/{document_id}/download",
-    summary="Download original document",
-    response_description="Original file download",
-)
+@router.get("/{document_id}/download")
 async def download_document(
     document_id: str,
     current_user: ActiveUser,
     db: DBSession,
 ):
-    """
-    Download the original uploaded document file.
-    """
+    """Download the original uploaded document."""
     doc_service = DocumentService(db)
-    
-    document = await doc_service.get_document_by_id(
-        document_id=document_id,
-        user_id=current_user.id
-    )
+    document = await doc_service.get_document_by_id(document_id, current_user.id)
     
     if not document:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Document not found"
-        )
+        raise HTTPException(status_code=404, detail="Document not found")
     
     if not os.path.exists(document.file_path):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="File not found on server"
-        )
-    
-    # Determine media type
-    media_types = {
-        "pdf": "application/pdf",
-        "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        "txt": "text/plain",
-    }
-    media_type = media_types.get(document.file_type, "application/octet-stream")
+        raise HTTPException(status_code=404, detail="File not found on server")
     
     return FileResponse(
         path=document.file_path,
         filename=document.original_name,
-        media_type=media_type,
+        media_type="application/octet-stream",
     )
-
 
 # ============================================
 # DELETE DOCUMENT
 # ============================================
-@router.delete(
-    "/{document_id}",
-    response_model=MessageResponse,
-    summary="Delete document",
-    response_description="Document deleted successfully",
-)
+@router.delete("/{document_id}", response_model=MessageResponse)
 async def delete_document(
     document_id: str,
     current_user: ActiveUser,
     db: DBSession,
 ):
-    """
-    Delete a document and all its associated data.
-    
-    This action is irreversible. The original file and all text chunks
-    will be permanently removed.
-    """
+    """Delete a document permanently."""
     doc_service = DocumentService(db)
-    
     try:
-        await doc_service.delete_document(
-            document_id=document_id,
-            user_id=current_user.id
-        )
-        
-        return MessageResponse(
-            success=True,
-            message="Document deleted successfully"
-        )
-        
+        await doc_service.delete_document(document_id, current_user.id)
+        return MessageResponse(success=True, message="Document deleted successfully")
     except NotFoundError:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Document not found"
-        )
-
+        raise HTTPException(status_code=404, detail="Document not found")
 
 # ============================================
-# DOCUMENT STATISTICS
+# TEXT ANALYSIS (New Feature)
 # ============================================
-@router.get(
-    "/stats/summary",
-    summary="Get document statistics",
-    response_description="Document usage statistics",
-)
-async def get_document_stats(
-    current_user: ActiveUser,
-    db: DBSession,
-):
+@router.post("/analyze_text")
+async def analyze_text(request: AnalyzeRequest):
     """
-    Get statistics about your uploaded documents.
-    
-    Includes:
-    - Total document count
-    - Documents by status
-    - Total storage used
+    Analyze legal text using the LLM directly.
+    Doesn't require file upload or storage.
     """
-    doc_service = DocumentService(db)
+    llm = get_llm_service()
     
-    stats = await doc_service.get_user_document_stats(current_user.id)
-    
-    return {
-        "success": True,
-        "stats": stats,
+    prompts = {
+        "summary": "Please provide a clear and concise summary of the following legal text:",
+        "risks": "Identify any potential legal risks, liabilities, or unfair clauses in this text:",
+        "clauses": "List and explain the key clauses found in this text:"
     }
-
-
-# ============================================
-# REPROCESS DOCUMENT
-# ============================================
-@router.post(
-    "/{document_id}/reprocess",
-    response_model=DocumentUploadResponse,
-    summary="Reprocess document",
-    response_description="Document reprocessing started",
-)
-async def reprocess_document(
-    document_id: str,
-    current_user: ActiveUser,
-    db: DBSession,
-):
-    """
-    Reprocess a failed document.
     
-    Useful if a document failed to process and you want to try again.
-    """
-    doc_service = DocumentService(db)
+    instruction = prompts.get(request.analysis_type, prompts["summary"])
     
-    document = await doc_service.get_document_by_id(
-        document_id=document_id,
-        user_id=current_user.id
+    # Truncate text to avoid token limits (approx 15k chars ~ 3-4k tokens)
+    safe_text = request.text[:15000]
+    
+    system_prompt = "You are an expert legal AI assistant. Analyze the provided text professionally."
+    user_prompt = f"{instruction}\n\n---\n{safe_text}\n---"
+    
+    response = await llm.generate_response(
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ],
+        temperature=0.3,
+        max_tokens=1000
     )
     
-    if not document:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Document not found"
-        )
-    
-    try:
-        document = await doc_service.process_document(document_id)
-        
-        return DocumentUploadResponse(
-            success=True,
-            message=f"Document reprocessed. Status: {document.status}",
-            document=document_to_response(document),
-        )
-        
-    except FileProcessingError as e:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=str(e.message)
-        )# ============================================
-# SEARCH DOCUMENT
+    return {"result": response["response"]}
+
 # ============================================
-@router.post(
-    "/{document_id}/search",
-    summary="Search within a document",
-    response_description="Relevant chunks matching the query",
-)
+# SEARCH WITHIN DOCUMENT
+# ============================================
+@router.post("/{document_id}/search")
 async def search_document(
     document_id: str,
     current_user: ActiveUser,
     db: DBSession,
-    query: str = Query(..., min_length=3, description="Search query"),
-    n_results: int = Query(5, ge=1, le=20, description="Number of results"),
+    query: str = Query(..., min_length=3),
+    n_results: int = Query(5, ge=1, le=20),
 ):
-    """
-    Search within a specific document using semantic similarity.
-    
-    This uses AI embeddings to find the most relevant sections
-    of the document that match your query.
-    
-    **Example queries:**
-    - "What are the termination clauses?"
-    - "Find payment terms"
-    - "Confidentiality obligations"
-    """
+    """Search within a specific document."""
     doc_service = DocumentService(db)
-    
     try:
         results = await doc_service.search_document(
             document_id=document_id,
@@ -563,7 +272,6 @@ async def search_document(
             query=query,
             n_results=n_results
         )
-        
         return {
             "success": True,
             "query": query,
@@ -571,50 +279,47 @@ async def search_document(
             "results": results,
             "count": len(results),
         }
-        
     except NotFoundError:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Document not found"
-        )
+        raise HTTPException(status_code=404, detail="Document not found")
     except ValidationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e.message)
-        )
-
-
-# ============================================
-# SEARCH ALL DOCUMENTS
-# ============================================
-@router.post(
-    "/search/all",
-    summary="Search across all documents",
-    response_description="Relevant chunks from all user documents",
-)
-async def search_all_documents(
-    current_user: ActiveUser,
-    db: DBSession,
-    query: str = Query(..., min_length=3, description="Search query"),
-    n_results: int = Query(5, ge=1, le=20, description="Number of results"),
+        raise HTTPException(status_code=400, detail=str(e))
+    
+@router.post("/extract_text")
+async def extract_document_text(
+    file: UploadFile = File(...)
 ):
-    """
-    Search across all your uploaded documents using semantic similarity.
+    # 1. Determine file extension
+    filename = file.filename
+    ext = filename.split('.')[-1].lower()
     
-    Returns the most relevant sections from any of your documents
-    that match the query.
-    """
-    doc_service = DocumentService(db)
-    
-    results = await doc_service.search_all_documents(
-        user_id=current_user.id,
-        query=query,
-        n_results=n_results
-    )
-    
-    return {
-        "success": True,
-        "query": query,
-        "results": results,
-        "count": len(results),
-    }
+    if ext not in ['pdf', 'docx', 'txt']:
+        raise HTTPException(status_code=400, detail="Unsupported file type")
+
+    # 2. Save to temp file
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext}") as tmp:
+            shutil.copyfileobj(file.file, tmp)
+            tmp_path = tmp.name
+            
+        # 3. Extract Text
+        # Note: extract_text returns a dict or object depending on your implementation
+        # Let's handle the dict return from the code above
+        result = extract_text(tmp_path, ext)
+        
+        # Cleanup temp file
+        os.remove(tmp_path)
+        
+        if result.get("error"):
+             raise HTTPException(status_code=422, detail=result["error"])
+             
+        return {"text": result["full_text"]}
+
+    except Exception as e:
+        # Ensure cleanup even on error
+        if 'tmp_path' in locals() and os.path.exists(tmp_path):
+            os.remove(tmp_path)
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        # Cleanup
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)

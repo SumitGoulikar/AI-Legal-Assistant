@@ -1,0 +1,34 @@
+{
+  "name": "Partnership Deed",
+  "slug": "partnership_deed",
+  "category": "deeds",
+  "description": "Agreement between business partners.",
+  "applicable_laws": [
+    "Indian Partnership Act, 1932"
+  ],
+  "form_schema": {
+    "fields": [
+      {
+        "name": "partner1",
+        "label": "Partner 1 Name",
+        "type": "text"
+      },
+      {
+        "name": "partner2",
+        "label": "Partner 2 Name",
+        "type": "text"
+      },
+      {
+        "name": "business_name",
+        "label": "Business Name",
+        "type": "text"
+      },
+      {
+        "name": "share_ratio",
+        "label": "Profit Share Ratio (e.g. 50:50)",
+        "type": "text"
+      }
+    ]
+  },
+  "template_body": "PARTNERSHIP DEED\n\nThis Deed of Partnership is made between {{partner1}} and {{partner2}}.\n\n1. NAME\nThe business shall be carried on under the name {{business_name}}.\n\n2. PROFIT SHARING\nThe net profits or losses of the business shall be shared in the ratio of {{share_ratio}}.\n\n3. DISPUTES\nAny disputes shall be settled by arbitration in accordance with the Arbitration and Conciliation Act, 1996.\n\nPartner 1: _________________      Partner 2: _________________"
+}

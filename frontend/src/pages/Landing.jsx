@@ -107,7 +107,7 @@ export default function Landing() {
       <footer className="border-t bg-white mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-gray-600 text-sm">
-            <p>© 2024 AI Legal Assistant. Built for educational purposes.</p>
+            <p>© 2026 AI Legal Assistant. Built for educational purposes.</p>
             <p className="mt-2">
               This project focuses on Indian law and legal context.
             </p>

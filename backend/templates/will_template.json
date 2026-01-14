@@ -1,0 +1,34 @@
+{
+  "name": "Last Will and Testament",
+  "slug": "will",
+  "category": "deeds",
+  "description": "Simple will for asset distribution.",
+  "applicable_laws": [
+    "Indian Succession Act, 1925"
+  ],
+  "form_schema": {
+    "fields": [
+      {
+        "name": "testator_name",
+        "label": "Your Name",
+        "type": "text"
+      },
+      {
+        "name": "beneficiary_name",
+        "label": "Main Beneficiary",
+        "type": "text"
+      },
+      {
+        "name": "executor_name",
+        "label": "Executor Name",
+        "type": "text"
+      },
+      {
+        "name": "assets",
+        "label": "Assets Description",
+        "type": "textarea"
+      }
+    ]
+  },
+  "template_body": "LAST WILL AND TESTAMENT\n\nI, {{testator_name}}, being of sound mind, do hereby declare this to be my Last Will.\n\n1. I revoke all prior wills and codicils.\n2. I appoint {{executor_name}} as the Executor of this will.\n3. I bequeath my assets described as: {{assets}} to {{beneficiary_name}}.\n\nSigned by the Testator in the presence of witnesses.\n\n_____________________\n{{testator_name}}"
+}

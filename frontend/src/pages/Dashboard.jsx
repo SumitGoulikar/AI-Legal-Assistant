@@ -45,9 +45,9 @@ export default function Dashboard() {
       icon: '💬',
     },
     {
-      title: 'Upload a Document',
-      description: 'Analyze contracts, agreements, and legal documents',
-      link: '/documents',
+      title: 'Analyze Document',
+      description: 'Analyze legal documents',
+      link: '/analyze',
       icon: '📄',
     },
     {

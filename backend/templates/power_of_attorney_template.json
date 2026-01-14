@@ -1,0 +1,34 @@
+{
+  "name": "General Power of Attorney",
+  "slug": "power_of_attorney",
+  "category": "deeds",
+  "description": "Authorizing someone to act on your behalf.",
+  "applicable_laws": [
+    "Power of Attorney Act, 1882"
+  ],
+  "form_schema": {
+    "fields": [
+      {
+        "name": "principal_name",
+        "label": "Principal (You)",
+        "type": "text"
+      },
+      {
+        "name": "attorney_name",
+        "label": "Attorney (Agent)",
+        "type": "text"
+      },
+      {
+        "name": "purpose",
+        "label": "Purpose/Powers",
+        "type": "textarea"
+      },
+      {
+        "name": "location",
+        "label": "Location",
+        "type": "text"
+      }
+    ]
+  },
+  "template_body": "GENERAL POWER OF ATTORNEY\n\nKNOW ALL MEN BY THESE PRESENTS that I, {{principal_name}}, do hereby appoint {{attorney_name}} as my true and lawful attorney.\n\nTo do and execute all or any of the following acts, deeds, and things on my behalf:\n{{purpose}}\n\nI hereby ratify and confirm that all acts done by my said attorney shall be binding on me as if done by myself.\n\nSigned at {{location}}.\n\n_____________________\n{{principal_name}} (Principal)"
+}
